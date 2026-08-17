@@ -77,39 +77,38 @@ function RiskPage() {
         <Panel title="Region concentration" subtitle="Distinct products reachable per region">
           {regions.isLoading && <LoadingState />}
           {regions.data?.ok === false && <ErrorState message={regions.data.error} />}
-          {regions.data?.ok &&
-            (regions.data.data.length === 0 ? (
-              <EmptyState message="No regions loaded yet." />
-            ) : (
-              <ul className="space-y-3">
-                {regions.data.data.map((row) => {
-                  const max = Math.max(...regions.data.data.map((r) => r.exposedProducts), 1);
-                  return (
-                    <li key={row.region}>
-                      <div className="flex items-baseline justify-between gap-3 text-sm">
-                        <span>{row.region}</span>
-                        <span className="font-mono text-xs text-muted-foreground">
-                          {row.exposedProducts} products · {row.riskLevel ?? "unrated"}
-                        </span>
-                      </div>
-                      <div className="mt-1 h-1.5 w-full bg-secondary">
-                        <div
-                          className="h-full bg-primary"
-                          style={{ width: `${(row.exposedProducts / max) * 100}%` }}
-                        />
-                      </div>
-                      {row.events.filter(Boolean).length > 0 && (
-                        <p className="mt-1 text-xs text-destructive">
-                          {row.events.filter(Boolean).join(" · ")}
-                        </p>
-                      )}
-                    </li>
-                  );
-                })}
-              </ul>
-            ))}
+          {regions.data?.ok && <RegionBars rows={regions.data.data} />}
         </Panel>
       </div>
     </main>
+  );
+}
+
+function RegionBars({
+  rows,
+}: {
+  rows: { region: string; riskLevel: string; events: string[]; exposedProducts: number }[];
+}) {
+  if (rows.length === 0) return <EmptyState message="No regions loaded yet." />;
+  const max = Math.max(...rows.map((r) => r.exposedProducts), 1);
+  return (
+    <ul className="space-y-3">
+      {rows.map((row) => (
+        <li key={row.region}>
+          <div className="flex items-baseline justify-between gap-3 text-sm">
+            <span>{row.region}</span>
+            <span className="font-mono text-xs text-muted-foreground">
+              {row.exposedProducts} products · {row.riskLevel ?? "unrated"}
+            </span>
+          </div>
+          <div className="mt-1 h-1.5 w-full bg-secondary">
+            <div className="h-full bg-primary" style={{ width: `${(row.exposedProducts / max) * 100}%` }} />
+          </div>
+          {row.events.filter(Boolean).length > 0 && (
+            <p className="mt-1 text-xs text-destructive">{row.events.filter(Boolean).join(" · ")}</p>
+          )}
+        </li>
+      ))}
+    </ul>
   );
 }
