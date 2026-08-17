@@ -107,19 +107,24 @@ export type ImpactRow = {
   factories: string[];
 };
 
-/** Multi-hop traversal: a supplier's parts, through sub-assemblies, up to finished products. */
+/**
+ * Multi-hop traversal: a supplier's parts, through sub-assemblies, up to finished products.
+ * Cypher cannot parameterise a variable-length upper bound, so the value is clamped
+ * to a small integer range before it is placed in the pattern.
+ */
 export async function fetchImpact(supplierId: string, maxHops: number): Promise<ImpactRow[]> {
+  const hops = Math.min(6, Math.max(1, Math.trunc(maxHops) || 1));
   return runCypher<ImpactRow>(
     `MATCH (s:Supplier {id: $supplierId})-[:SUPPLIES]->(p:Part)
-     MATCH path = (p)-[:PART_OF*1..${"$"}maxHops]->(prod:Product)
+     MATCH path = (p)-[:PART_OF*1..${hops}]->(prod:Product)
      OPTIONAL MATCH (f:Factory)-[:ASSEMBLES]->(prod)
      RETURN prod.name AS product,
             prod.line AS productLine,
             length(path) AS hops,
             [n IN nodes(path) | coalesce(n.name, n.id)] AS path,
             collect(DISTINCT coalesce(f.name, 'Unassigned')) AS factories
-     ORDER BY hops, product`.replace("$maxHops", "$maxHops"),
-    { supplierId, maxHops },
+     ORDER BY hops, product`,
+    { supplierId, maxHops: hops },
   );
 }
 
