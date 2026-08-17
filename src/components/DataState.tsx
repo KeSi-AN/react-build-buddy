@@ -7,8 +7,8 @@ export function Panel({
   children,
 }: {
   title: string;
-  subtitle?: string;
-  action?: ReactNode;
+  subtitle?: string | undefined;
+  action?: ReactNode | undefined;
   children: ReactNode;
 }) {
   return (
