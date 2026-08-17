@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as ImpactRouteImport } from './routes/impact'
+import { Route as ModelRouteImport } from './routes/model'
 import { Route as NetworkRouteImport } from './routes/network'
 import { Route as RiskRouteImport } from './routes/risk'
 import { Route as ShipmentsRouteImport } from './routes/shipments'
@@ -23,6 +24,11 @@ const IndexRoute = IndexRouteImport.update({
 const ImpactRoute = ImpactRouteImport.update({
   id: '/impact',
   path: '/impact',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ModelRoute = ModelRouteImport.update({
+  id: '/model',
+  path: '/model',
   getParentRoute: () => rootRouteImport,
 } as any)
 const NetworkRoute = NetworkRouteImport.update({
@@ -44,6 +50,7 @@ const ShipmentsRoute = ShipmentsRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/impact': typeof ImpactRoute
+  '/model': typeof ModelRoute
   '/network': typeof NetworkRoute
   '/risk': typeof RiskRoute
   '/shipments': typeof ShipmentsRoute
@@ -51,6 +58,7 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/impact': typeof ImpactRoute
+  '/model': typeof ModelRoute
   '/network': typeof NetworkRoute
   '/risk': typeof RiskRoute
   '/shipments': typeof ShipmentsRoute
@@ -59,21 +67,30 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/impact': typeof ImpactRoute
+  '/model': typeof ModelRoute
   '/network': typeof NetworkRoute
   '/risk': typeof RiskRoute
   '/shipments': typeof ShipmentsRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/impact' | '/network' | '/risk' | '/shipments'
+  fullPaths: '/' | '/impact' | '/model' | '/network' | '/risk' | '/shipments'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/impact' | '/network' | '/risk' | '/shipments'
-  id: '__root__' | '/' | '/impact' | '/network' | '/risk' | '/shipments'
+  to: '/' | '/impact' | '/model' | '/network' | '/risk' | '/shipments'
+  id:
+    | '__root__'
+    | '/'
+    | '/impact'
+    | '/model'
+    | '/network'
+    | '/risk'
+    | '/shipments'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   ImpactRoute: typeof ImpactRoute
+  ModelRoute: typeof ModelRoute
   NetworkRoute: typeof NetworkRoute
   RiskRoute: typeof RiskRoute
   ShipmentsRoute: typeof ShipmentsRoute
@@ -93,6 +110,13 @@ declare module '@tanstack/react-router' {
       path: '/impact'
       fullPath: '/impact'
       preLoaderRoute: typeof ImpactRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/model': {
+      id: '/model'
+      path: '/model'
+      fullPath: '/model'
+      preLoaderRoute: typeof ModelRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/network': {
@@ -122,6 +146,7 @@ declare module '@tanstack/react-router' {
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   ImpactRoute: ImpactRoute,
+  ModelRoute: ModelRoute,
   NetworkRoute: NetworkRoute,
   RiskRoute: RiskRoute,
   ShipmentsRoute: ShipmentsRoute,
