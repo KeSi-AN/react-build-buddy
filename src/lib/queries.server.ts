@@ -133,13 +133,13 @@ export type SingleSourceRow = { part: string; supplier: string; region: string; 
 export async function fetchSingleSourceRisk(): Promise<SingleSourceRow[]> {
   return runCypher<SingleSourceRow>(
     `MATCH (p:Part)<-[sup:SUPPLIES]-(s:Supplier)
-     WITH p, collect({s: s, sup: sup}) AS sources
-     WHERE size(sources) = 1
-     WITH p, sources[0] AS only
-     OPTIONAL MATCH (only.s)-[:LOCATED_IN]->(reg:Region)
-     RETURN p.name AS part, only.s.name AS supplier,
+     WITH p, collect(s) AS suppliers, collect(sup) AS rels
+     WHERE size(suppliers) = 1
+     WITH p, suppliers[0] AS s, rels[0] AS sup
+     OPTIONAL MATCH (s)-[:LOCATED_IN]->(reg:Region)
+     RETURN p.name AS part, s.name AS supplier,
             coalesce(reg.name, 'Unknown') AS region,
-            only.sup.leadTimeDays AS leadTimeDays
+            sup.leadTimeDays AS leadTimeDays
      ORDER BY leadTimeDays DESC`,
   );
 }
